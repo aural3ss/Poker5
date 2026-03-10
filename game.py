@@ -174,7 +174,7 @@ def bet(ui: PokerUI, data: PokerData, pNum: int) -> None:
        if amount == 0 and data.getPlayer(pNum).money == 0:
            ui.writeMsg("Since you have no more money, we made an all-in bet of 0 on your behalf.")
        data.bet(pNum, amount)
-       data.flipCards(pNum)
+       data.flipDown(pNum)
        ui.writePlayerCards(pNum, data.getPlayer(pNum).getHand())
        ui.showBets(data)
        ui.writeScore(pNum, data.getPlayer(pNum).getMoney())
@@ -200,8 +200,8 @@ def bet(ui: PokerUI, data: PokerData, pNum: int) -> None:
              call_amount = data.getPlayer(second_player).money
              ui.writeMsg("Since you cannot afford to call, we made an all-in on your behalf.")
          data.bet(second_player, call_amount)
-         data.flipCards(pNum)
-         ui.writePlayerCards(pNum, data.getPlayer(pNum).getHand())
+         data.flipDown(second_player)
+         ui.writePlayerCards(second_player, data.getPlayer(second_player).getHand())
          ui.showBets(data)
          ui.writeScore(second_player, data.getPlayer(second_player).getMoney())
          ui.updateGameWindow()
@@ -256,7 +256,7 @@ def hold(ui: PokerUI, data: PokerData, pNum: int) -> list[int]:
          ui.updateGameWindow()
      elif move != None and move == "done":
          held_cards = list(hold_selection)
-         data.flipCards(pNum)
+         data.flipDown(pNum)
          ui.writePlayerCards(pNum, data.getPlayer(pNum).getHand())
          ui.updateGameWindow()
          held_cards.sort()
@@ -322,14 +322,13 @@ def main(stdscr):
  name2 = ui.askMsg("Player 2 name?")
  money2 = ui.askMsg("How much are you bringing to the table, {name}?".format(name = name2))
  data.setAnte(int(ui.askMsg("What is the ante for each round?")))
+ while data.getAnte() < 0:
+     ui.writeMsg("Please enter a positive integer for the ante.")
+     data.setAnte(int(ui.askMsg("What is the ante for each round?")))
  while int(money1) < data.getAnte() or int(money2) < data.getAnte():
      ui.writeMsg("One or more of the players does not have enough money to ante. Please enter new amounts.")
      money1 = ui.askMsg("How much are you bringing to the table, {name}?".format(name = name1))
      money2 = ui.askMsg("How much are you bringing to the table, {name}?".format(name = name2))
-     data.setAnte(int(ui.askMsg("What is the ante for each round?")))
-     if data.getAnte() < 0:
-            ui.writeMsg("Please enter a positive integer for the ante.")
-            data.setAnte(int(ui.askMsg("What is the ante for each round?")))
  data.setBetLimit(int(ui.askMsg("What is the bet limit for each round? (0 = no limit)")))
  if data.getBetLimit() == 0:
     data.setBetLimit(min(int(money1) - data.getAnte(),int(money2) - data.getAnte()))
@@ -345,6 +344,9 @@ def main(stdscr):
      data.getPlayer(1).setMoney(int(money1))
      data.getPlayer(2).setMoney(int(money2))
      data.setAnte(int(ui.askMsg("What is the ante for each round?")))
+     while data.getAnte() < 0:
+       ui.writeMsg("Please enter a positive integer for the ante.")
+       data.setAnte(int(ui.askMsg("What is the ante for each round?")))
      while data.getPlayer(1).getMoney() < data.getAnte() or data.getPlayer(2).getMoney() < data.getAnte():
          ui.writeMsg("One or more of the players does not have enough money to ante. Please enter new amounts.")
          money1 = ui.askMsg("How much are you bringing to the table, {name}?".format(name = name1))
@@ -356,8 +358,6 @@ def main(stdscr):
      ui.writeMsg("Thanks for playing! Press any key to exit.")
      ui.waitForKey()
      ui.updateGameWindow()
-
-#TODO: test
 
 
 # DO NOT CHANGE/DELETE THIS LINE BELOW

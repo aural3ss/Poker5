@@ -132,6 +132,32 @@ class PokerData(GameData):
       else:
           for card in self.player2.hand:
               card.flipUpDown()
+  def flipDown(self, pNum: int) -> None:
+      '''
+      Flip all the cards held in the hand of the player face down
+    
+      :param pNum: Player number (1 or 2) to flip cards
+      :type pNum: int
+      '''
+      if pNum == 1:
+          for card in self.player1.hand:
+              card.setFaceDown()
+      else:
+          for card in self.player2.hand:
+              card.setFaceDown()
+  def flipUp(self, pNum: int) -> None:
+      '''
+      Flip all the cards held in the hand of the player face up
+    
+      :param pNum: Player number (1 or 2) to flip cards
+      :type pNum: int
+      '''
+      if pNum == 1:
+          for card in self.player1.hand:
+              card.setFaceUp()
+      else:
+          for card in self.player2.hand:
+              card.setFaceUp()
         
   def whoIsWinner(self) -> int:
       '''
