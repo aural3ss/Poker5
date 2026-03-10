@@ -264,6 +264,8 @@ def hold(ui: PokerUI, data: PokerData, pNum: int) -> list[int]:
          held_cards = list(hold_selection)
          data.flipDown(pNum)
          ui.writePlayerCards(pNum, data.getPlayer(pNum).getHand())
+         for card in held_cards:
+            ui.unholdCard(pNum, card)
          ui.updateGameWindow()
          held_cards.sort()
          return held_cards
@@ -312,6 +314,7 @@ def main(stdscr):
     If yes, reset the money to the original starting money balance and play again.
     If no, then end.
  '''
+ # initialize ui and data
  ui = PokerUI()
  ui.setPlayerKeyMap(1, [('?', 'flip'), ('b', 'bet'), ('c', 'call'), ('f', 'fold'),
                         ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('d', 'done') ])
@@ -321,23 +324,83 @@ def main(stdscr):
  data.setData('mode', 'basic')
  data.setData('numPlayers', 2)
 
-
+# starts by asking for player names and money balance, and then calls playGame. 
  ui.writeMsg("Let's play 5-card Draw")
  name1 = ui.askMsg("Player 1 name?")
- money1 = ui.askMsg("How much are you bringing to the table, {name}?".format(name = name1))
+ # sets player 1s money, making sure they enter a valid positive integer
+ while True:
+    money1 = ui.askMsg("How much are you bringing to the table, {name}?".format(name=name1))
+    try:
+        money1 = int(money1)
+        if money1 > 0:
+            break
+        else:
+            ui.writeMsg("Please enter a positive integer for the amount of money.")
+    except ValueError:
+        ui.writeMsg("Please enter a valid number.")
+
  name2 = ui.askMsg("Player 2 name?")
- money2 = ui.askMsg("How much are you bringing to the table, {name}?".format(name = name2))
- data.setAnte(int(ui.askMsg("What is the ante for each round?")))
- while data.getAnte() < 0:
-     ui.writeMsg("Please enter a positive integer for the ante.")
-     data.setAnte(int(ui.askMsg("What is the ante for each round?")))
- while int(money1) < data.getAnte() or int(money2) < data.getAnte():
-     ui.writeMsg("One or more of the players does not have enough money to ante. Please enter new amounts.")
-     money1 = ui.askMsg("How much are you bringing to the table, {name}?".format(name = name1))
-     money2 = ui.askMsg("How much are you bringing to the table, {name}?".format(name = name2))
- data.setBetLimit(int(ui.askMsg("What is the bet limit for each round? (0 = no limit)")))
- if data.getBetLimit() == 0:
-    data.setBetLimit(min(int(money1) - data.getAnte(),int(money2) - data.getAnte()))
+ # sets player 2s money, making sure they enter a valid positive integer
+ while True:
+    money2 = ui.askMsg("How much are you bringing to the table, {name}?".format(name=name2))
+    try:
+        money2 = int(money2)
+        if money2 > 0:
+            break
+        else:
+            ui.writeMsg("Please enter a positive integer for the amount of money.")
+    except ValueError:
+        ui.writeMsg("Please enter a valid number.")
+ # sets the ante, making sure they enter a valid positive integer
+ while True:
+    try:
+        ante = int(ui.askMsg("What is the ante for each round?"))
+        if ante > 0:
+            data.setAnte(ante)
+            break
+        else:
+            ui.writeMsg("Please enter a positive integer for the ante.")
+    except ValueError:
+        ui.writeMsg("Please enter a valid number.")
+# if the ante is invalid, it will tell the user to input a new amount of money
+ while money1 < data.getAnte() or money2 < data.getAnte():
+    ui.writeMsg("One or more players does not have enough money to ante. Please enter new amounts.")
+    while True:
+        try:
+            money1 = int(ui.askMsg("How much are you bringing to the table, {name}?".format(name=name1)))
+            if money1 > 0:
+                break
+            else:
+                ui.writeMsg("Please enter a positive integer.")
+        except ValueError:
+            ui.writeMsg("Please enter a valid number.")
+    while True:
+        try:
+            money2 = int(ui.askMsg("How much are you bringing to the table, {name}?".format(name=name2)))
+            if money2 > 0:
+                break
+            else:
+                ui.writeMsg("Please enter a positive integer.")
+        except ValueError:
+            ui.writeMsg("Please enter a valid number.")
+ # if the bet limit is invalid, it will tell the user to input a new bet limit. 
+ # If the bet limit is 0, it will set the bet limit to the maximum possible bet (the smaller of the two player's money minus the ante).
+ while True:
+    try:
+        betLimit = int(ui.askMsg("What is the bet limit for each round? (0 = no limit)"))
+        
+        if betLimit < 0:
+            ui.writeMsg("Please enter a non-negative integer.")
+            continue
+
+        if betLimit == 0:
+            betLimit = min(money1 - data.getAnte(), money2 - data.getAnte())
+
+        data.setBetLimit(betLimit)
+        break
+
+    except ValueError:
+        ui.writeMsg("Please enter a valid number.")
  ui.writeMsg("Great! Let's start the game!")
  data.makePlayer(1, name1, int(money1))
  data.makePlayer(2, name2, int(money2))
@@ -345,19 +408,79 @@ def main(stdscr):
  playGame(ui, data)
  playAgain = ui.askMsg("Do you want to play again? (y/n)")
  while playAgain == "y":
-     money1 = ui.askMsg("How much are you bringing to the table, {name}?".format(name = name1))
-     money2 = ui.askMsg("How much are you bringing to the table, {name}?".format(name = name2))
+     while True:
+        money1 = ui.askMsg("How much are you bringing to the table, {name}?".format(name=name1))
+        try:
+            money1 = int(money1)
+            if money1 > 0:
+                break
+            else:
+                ui.writeMsg("Please enter a positive integer for the amount of money.")
+        except ValueError:
+            ui.writeMsg("Please enter a valid number.")
+     while True:
+        money2 = ui.askMsg("How much are you bringing to the table, {name}?".format(name=name2))
+        try:
+            money2 = int(money2)
+            if money2 > 0:
+                break
+            else:
+                ui.writeMsg("Please enter a positive integer for the amount of money.")
+        except ValueError:
+            ui.writeMsg("Please enter a valid number.")
      data.getPlayer(1).setMoney(int(money1))
      data.getPlayer(2).setMoney(int(money2))
-     data.setAnte(int(ui.askMsg("What is the ante for each round?")))
-     while data.getAnte() < 0:
-       ui.writeMsg("Please enter a positive integer for the ante.")
-       data.setAnte(int(ui.askMsg("What is the ante for each round?")))
-     while data.getPlayer(1).getMoney() < data.getAnte() or data.getPlayer(2).getMoney() < data.getAnte():
-         ui.writeMsg("One or more of the players does not have enough money to ante. Please enter new amounts.")
-         money1 = ui.askMsg("How much are you bringing to the table, {name}?".format(name = name1))
-         money2 = ui.askMsg("How much are you bringing to the table, {name}?".format(name = name2))
-         data.setAnte(int(ui.askMsg("What is the ante for each round?")))
+     # sets the ante, making sure they enter a valid positive integer
+     while True:
+        try:
+            ante = int(ui.askMsg("What is the ante for each round?"))
+            if ante > 0:
+                data.setAnte(ante)
+                break
+            else:
+                ui.writeMsg("Please enter a positive integer for the ante.")
+        except ValueError:
+            ui.writeMsg("Please enter a valid number.")
+  # if the ante is invalid, it will tell the user to input a new amount of money
+     while money1 < data.getAnte() or money2 < data.getAnte():
+        ui.writeMsg("One or more players does not have enough money to ante. Please enter new amounts.")
+        while True:
+            try:
+                money1 = int(ui.askMsg("How much are you bringing to the table, {name}?".format(name=name1)))
+                if money1 > 0:
+                    break
+                else:
+                    ui.writeMsg("Please enter a positive integer.")
+            except ValueError:
+                ui.writeMsg("Please enter a valid number.")
+        while True:
+            try:
+                money2 = int(ui.askMsg("How much are you bringing to the table, {name}?".format(name=name2)))
+                if money2 > 0:
+                    break
+                else:
+                    ui.writeMsg("Please enter a positive integer.")
+            except ValueError:
+                ui.writeMsg("Please enter a valid number.")
+     # if the bet limit is invalid, it will tell the user to input a new bet limit. 
+ # If the bet limit is 0, it will set the bet limit to the maximum possible bet (the smaller of the two player's money minus the ante).
+     while True:
+        try:
+            betLimit = int(ui.askMsg("What is the bet limit for each round? (0 = no limit)"))
+        
+            if betLimit < 0:
+                ui.writeMsg("Please enter a non-negative integer.")
+                continue
+
+            if betLimit == 0:
+                betLimit = min(money1 - data.getAnte(), money2 - data.getAnte())
+
+            data.setBetLimit(betLimit)
+            break
+
+        except ValueError:
+            ui.writeMsg("Please enter a valid number.")
+     ui.writeMsg("Great! Let's start the game!")
      playGame(ui, data)
      playAgain = ui.askMsg("Do you want to play again? (y/n)")
  if playAgain == "n":
