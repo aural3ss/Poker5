@@ -5,7 +5,7 @@
 #Version 5.0: Ignore the 5th snapshot, this is the real 5th snapshot with all of the update comments.
 #Version 5.0 is the final version, with all of the extra features fully implemented and tested
 #The extra features include: setting a custom ante after every game, setting a custom balance after every game, and a custom betting limit after each game
-
+#Version 6.0: This is just some extra cleanup of functions, to make sure everything is spot on.
 import curses
 from ui import debug
 from pokercard import PokerCard
@@ -115,8 +115,14 @@ def playRound(ui: PokerUI, data: PokerData) -> int:
      player2.addMoney(player2.getBet())
      ui.writeMsg("The game is a tie!")
 
-
- return winner
+ data.flipUp(1)
+ ui.writePlayerCards(1, data.getPlayer(1).getHand())
+ data.flipUp(2)
+ ui.writePlayerCards(2, data.getPlayer(2).getHand())
+ nextRound = ui.askMsg("Press enter to continue.")
+ ui.updateGameWindow()
+ if nextRound != None:
+        return winner
 
 def bet(ui: PokerUI, data: PokerData, pNum: int) -> None:
  '''
@@ -284,7 +290,7 @@ def playGame(ui: PokerUI, data: PokerData) -> None:
      winner = 1
  else:
      winner = 2
- ui.writeMsg("{name} has won the game with a {hand}!".format(name = data.getPlayer(winner).getName(), hand = data.getPlayer(winner)))
+ ui.writeMsg("{name} has won the game with a {hand}!".format(name = data.getPlayer(winner).getName(), hand = data.getHand(winner)))
 
 
 def makeDeck() -> PokerHand:
