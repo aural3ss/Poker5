@@ -25,8 +25,7 @@ def playRound(ui: PokerUI, data: PokerData) -> int:
     new cards from the deck. This starts with the designated starting player
  6. Bet - starting with the designated player again
  7. Determine winner who wins the pot
-
-
+ 
  Args:
      ui (PokerUI): User interface for Poker game
      data (PokerData): All the data in Poker game
@@ -175,6 +174,8 @@ def bet(ui: PokerUI, data: PokerData, pNum: int) -> None:
        if amount == 0 and data.getPlayer(pNum).money == 0:
            ui.writeMsg("Since you have no more money, we made an all-in bet of 0 on your behalf.")
        data.bet(pNum, amount)
+       data.flipCards(pNum)
+       ui.writePlayerCards(pNum, data.getPlayer(pNum).getHand())
        ui.showBets(data)
        ui.writeScore(pNum, data.getPlayer(pNum).getMoney())
        ui.updateGameWindow()
@@ -199,6 +200,8 @@ def bet(ui: PokerUI, data: PokerData, pNum: int) -> None:
              call_amount = data.getPlayer(second_player).money
              ui.writeMsg("Since you cannot afford to call, we made an all-in on your behalf.")
          data.bet(second_player, call_amount)
+         data.flipCards(pNum)
+         ui.writePlayerCards(pNum, data.getPlayer(pNum).getHand())
          ui.showBets(data)
          ui.writeScore(second_player, data.getPlayer(second_player).getMoney())
          ui.updateGameWindow()
@@ -253,8 +256,8 @@ def hold(ui: PokerUI, data: PokerData, pNum: int) -> list[int]:
          ui.updateGameWindow()
      elif move != None and move == "done":
          held_cards = list(hold_selection)
-         ui.writePlayerCards(pNum, data.getPlayer(pNum).getHand())
          data.flipCards(pNum)
+         ui.writePlayerCards(pNum, data.getPlayer(pNum).getHand())
          ui.updateGameWindow()
          held_cards.sort()
          return held_cards
@@ -281,7 +284,7 @@ def playGame(ui: PokerUI, data: PokerData) -> None:
      winner = 1
  else:
      winner = 2
- ui.writeMsg("{name} has won the game with a {hand}!".format(name = data.getPlayer(winner).getName(), hand = data.getPlayer(winner).getHand().getType()))
+ ui.writeMsg("{name} has won the game with a {hand}!".format(name = data.getPlayer(winner).getName(), hand = data.getPlayer(winner)))
 
 
 def makeDeck() -> PokerHand:
@@ -324,6 +327,9 @@ def main(stdscr):
      money1 = ui.askMsg("How much are you bringing to the table, {name}?".format(name = name1))
      money2 = ui.askMsg("How much are you bringing to the table, {name}?".format(name = name2))
      data.setAnte(int(ui.askMsg("What is the ante for each round?")))
+     if data.getAnte() < 0:
+            ui.writeMsg("Please enter a positive integer for the ante.")
+            data.setAnte(int(ui.askMsg("What is the ante for each round?")))
  data.setBetLimit(int(ui.askMsg("What is the bet limit for each round? (0 = no limit)")))
  if data.getBetLimit() == 0:
     data.setBetLimit(min(int(money1) - data.getAnte(),int(money2) - data.getAnte()))
