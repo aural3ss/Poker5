@@ -75,10 +75,9 @@ class PokerPlayer(Player):
        '''
        for i in range(5,0,-1):
            if i not in holdList:
-               self.removeCard(i-1)
-               newCard = deck.getCard(0)
-               deck.deal()
-               self.hand.insert(i-1,newCard)
+               self.hand.remove(i-1)
+               newCard = deck.deal()
+               self.hand.insert(i-1, newCard)
 
 
    def sortCards(self) -> None:

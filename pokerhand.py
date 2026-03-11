@@ -36,15 +36,14 @@ class PokerHand(StackOfCards):
       '''
       d = {}
       for card in self.cards:
-          v = card.getValue()
-          if v in d:
-              d[v] += 1
-          else:
-              d[v] = 1
+        if not isinstance(card, PokerCard):
+            raise TypeError(f"Invalid object in hand: {card}")
+        v = card.getValue()
+        if v in d:
+            d[v] += 1
+        else:
+            d[v] = 1
       return d
-
-
-
 
   def sort(self) -> None:
       '''
@@ -135,14 +134,16 @@ class PokerHand(StackOfCards):
 
 
   def sortedHand(self):
-      '''
-      given a poker hand, return a list of ranks based on amt
-      if two amounts are the same, they are organized by rank (high -> low)
-      '''
-      value_dict = self.getValueDict()
-      value_to_count = list(value_dict.items())
-      value_to_count.sort(key = self.generateCompareTuple)
-      return [item[0] for item in value_to_count]
+    value_dict = self.getValueDict()
+    value_to_count = list(value_dict.items())
+
+    value_to_count.sort(key=self.generateCompareTuple)
+
+    result = []
+    for value, count in value_to_count:
+        result.extend([value] * count)
+
+    return result
 
 
 
