@@ -35,9 +35,10 @@ class PokerCard(Card):
            return 12
        elif self.rank == "J":
            return 11
-       else:
+       elif self.rank in ("2","3","4","5","6","7","8","9","10"):
            return int(self.rank) 
-
+       else:
+           raise ValueError("Invalid rank for a card")
 
    def getFaceUp(self) -> bool:
        '''

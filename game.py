@@ -33,7 +33,7 @@ def playRound(ui: PokerUI, data: PokerData, deck: PokerHand, roundNum: int) -> i
   Return:
      int: The player number (1 or 2) of the winner, 0 if tie
  '''
- 
+
  second_player = 3 - data.first_player
  # player_order gives the order of the players
  player_order = [data.first_player, second_player]
@@ -149,7 +149,7 @@ def bet(ui: PokerUI, data: PokerData, pNum: int) -> None:
      actions = ["? - show/hide cards", "b - bet"]
      ui.showMenu(actions)
      while True:
-       move = ui.getPlayerMove(pNum)
+       move = ui.getPlayerMove(1)
        if move is None:
            continue
        elif move == "flip":
@@ -194,7 +194,7 @@ def bet(ui: PokerUI, data: PokerData, pNum: int) -> None:
      ui.showMenu(actions)
      ui.showTurn(second_player)
      while True:
-      move = ui.getPlayerMove(second_player)
+      move = ui.getPlayerMove(1)
       if move is None:
          continue
       elif move == "flip":
@@ -245,7 +245,7 @@ def hold(ui: PokerUI, data: PokerData, pNum: int) -> list[int]:
  ui.showMenu(actions)
  ui.showTurn(pNum)
  while True:
-     move = ui.getPlayerMove(pNum)
+     move = ui.getPlayerMove(1)
      if move == None:
          continue
      if move != None and move in ("1", "2", "3", "4", "5"):

@@ -61,9 +61,6 @@ class PokerHand(StackOfCards):
       '''
       self.cards.insert(pos, card)
 
-
-
-
   def handType(self) -> str:
       '''
       :return: Return a string that is the hand type - it should be one of the
@@ -95,19 +92,13 @@ class PokerHand(StackOfCards):
       else:
           raise ValueError('{} hand is of unknown type'.format(self.cards))
 
-
-
-
-
-
-
-
   def isPair(self) -> bool:
       '''
       :return: Returns ``True`` if the hand is a pair
       :rtype: bool
       '''
       return self.handType() == "Pair"    
+  
   def isFlush(self):
       '''
       :return: Returns ``True`` if the hand is a flush
@@ -115,9 +106,6 @@ class PokerHand(StackOfCards):
       '''
       card_types = set(card.getSuit() for card in self.cards)
       return len(card_types) == 1
-
-
-
 
   def isStraight(self):
       '''
