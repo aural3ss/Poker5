@@ -13,8 +13,9 @@ from pokerhand import PokerHand
 from pokerplayer import PokerPlayer
 from pokerdata import PokerData
 from pokerui import PokerUI
+from stack_of_cards import StackOfCards
 
-def playRound(ui: PokerUI, data: PokerData) -> int:
+def playRound(ui: PokerUI, data: PokerData, deck: PokerHand, roundNum: int) -> int:
  '''
  Play one round - make/shuffle deck, deal 5 cards, bet, draw, bet, pay winner.
  1. Make and shuffle a PokerHand deck of 52 PokerCards
@@ -32,6 +33,7 @@ def playRound(ui: PokerUI, data: PokerData) -> int:
   Return:
      int: The player number (1 or 2) of the winner, 0 if tie
  '''
+ 
  second_player = 3 - data.first_player
  # player_order gives the order of the players
  player_order = [data.first_player, second_player]
@@ -45,12 +47,11 @@ def playRound(ui: PokerUI, data: PokerData) -> int:
  data.resetPot()
 
  # step 1: shuffle a deck of 52 cards
- deck = makeDeck()
  deck.shuffle()
 
  # step 2: start with the ante of the players choice
- data.player1.money -= data.getAnte()
- data.player2.money -= data.getAnte()
+ data.getPlayer(1).money -= data.getAnte()
+ data.getPlayer(2).money -= data.getAnte()
  data.pot += 2 * data.getAnte()
 
  # step 3: deal the cards one at a time alternating between player 1 and player 2
@@ -285,9 +286,12 @@ def playGame(ui: PokerUI, data: PokerData) -> None:
  data.first_player = 1
  player1 = data.getPlayer(1)
  player2 = data.getPlayer(2)
+ roundNum = 1
  while player1.getMoney() >= 10 and player2.getMoney() >= 10:
-     playRound(ui, data)
+     deck = makeDeck()
+     playRound(ui, data, deck, roundNum)
      data.first_player = 3 - data.first_player
+     roundNum += 1
  if player1.getMoney() > player2.getMoney():
      winner = 1
  else:

@@ -17,6 +17,7 @@ class PokerData(GameData):
       self.pot = 0
       self.ante = 10
       self.betLimit = 0
+      self.first_player = 1
       # Add any other sort of data you'd like the PokerData object to hold
 
   def addPot(self, amt: int) -> None:
